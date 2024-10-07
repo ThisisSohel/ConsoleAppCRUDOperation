@@ -1,47 +1,58 @@
-﻿using System;
+﻿using Models;
+using Service;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace ConsoleCRUDExample
 {
     public class PersonController
     {
-        private List<Person> _person;
+        private readonly IPersonService _personService;
 
-        public PersonController()
+        public PersonController(IPersonService personService)
         {
-            _person = new List<Person>();
+            _personService = personService;
         }
 
         /// <summary>
         /// Create a new objcet in the database
         /// </summary>
         /// <param name="person"></param>
-        public void CreatePerson(Person person)
+        public void CreatePerson()
         {
-            _person.Add(person);
-            Console.WriteLine("Person is added successfully!\n\n");
-            Console.WriteLine("Person List");
-            Console.WriteLine("......................................");
+            var person = new Person();
+            Console.Write("Enter Id: ");
+            person.Id = int.Parse(Console.ReadLine());
+            Console.Write("Enter Name: ");
+            person.Name = Console.ReadLine();
+            Console.Write("Enter Phone: ");
+            person.Phone = Console.ReadLine();
+
+            _personService.AddPerson(person);
+            Console.WriteLine("Person created successfully.");
             GellAllPerson();
         }
+
 
         /// <summary>
         /// Retreive all the data from database
         /// </summary>
         public void GellAllPerson()
         {
-            if (_person.Count <= 0)
+            var persons = _personService.GetAllPersons();
+            if (persons.Count == 0)
             {
-                Console.WriteLine("\n\nNo person is available now! Please add a new person!");
+                Console.WriteLine("No persons found.");
             }
             else
             {
-                foreach (Person person in _person)
+                foreach (var person in persons)
                 {
-                    Console.WriteLine($"Id: {person.Id}- Name: {person.Name}- Phone: {person.Phone}");
+                    Console.WriteLine($"ID: {person.Id}, Name: {person.Name}, Phone: {person.Phone}");
                 }
             }
         }
@@ -51,9 +62,9 @@ namespace ConsoleCRUDExample
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Person GetById(int? id)
+        public void GetById(int id)
         {
-            return _person.FirstOrDefault(x => x.Id == id);
+            _personService.GetPerson(id);
         }
 
         /// <summary>
@@ -61,23 +72,20 @@ namespace ConsoleCRUDExample
         /// </summary>
         /// <param name="id"></param>
         /// <param name="model"></param>
-        public void UpdatePerson(int id, Person model)
+        public void UpdatePerson()
         {
-            var personToUpdate = GetById(id);
-            if (personToUpdate != null)
-            {
-                personToUpdate.Id = model.Id; 
-                personToUpdate.Name = model.Name;
-                personToUpdate.Phone = model.Phone;
-                Console.WriteLine("\nPerson is updated successfully!");
-                Console.WriteLine("Person List");
-                Console.WriteLine("......................................");
-                GellAllPerson();
-            }
-            else
-            {
-                Console.WriteLine("Person is not found to update!");
-            }
+            Console.Write("Enter ID of the person to update: ");
+            int id = int.Parse(Console.ReadLine());
+            var updatedPerson = new Person();
+            updatedPerson.Id = id;
+            Console.Write("Enter New Name: ");
+            updatedPerson.Name = Console.ReadLine();
+            Console.Write("Enter New Phone: ");
+            updatedPerson.Phone = Console.ReadLine();
+
+            _personService.UpdatePerson(id, updatedPerson);
+            Console.WriteLine("Person updated successfully.");
+            GellAllPerson();
         }
 
         /// <summary>
@@ -86,15 +94,9 @@ namespace ConsoleCRUDExample
         /// <param name="id"></param>
         public void DeletePerson(int id)
         {
-            var personToDelete = GetById(id);   
-            if(personToDelete != null)
-            {
-                _person.Remove(personToDelete);
-                Console.WriteLine("\nPerson is Deleted!");
-                Console.WriteLine("Person List");
-                Console.WriteLine("......................................");
-                GellAllPerson();
-            }
+            _personService.RemovePerson(id);
+            Console.WriteLine("Person deleted successfully."); 
+            GellAllPerson();
         }
     }
 }

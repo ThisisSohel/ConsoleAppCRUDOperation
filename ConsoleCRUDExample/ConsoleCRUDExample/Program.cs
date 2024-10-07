@@ -1,10 +1,16 @@
-﻿namespace ConsoleCRUDExample
+﻿using DAO;
+using Models;
+using Service;
+
+namespace ConsoleCRUDExample
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            PersonController controller = new PersonController();
+            IPersonRepository personRepository = new PersonRepository();
+            IPersonService personService = new PersonService(personRepository);
+            PersonController controller = new PersonController(personService);
 
             while (true)
             {
@@ -22,14 +28,7 @@
                 {
                     case "1":
                         {
-                            Person newPerson = new Person();
-                            Console.WriteLine("Enter the person Id:");
-                            newPerson.Id = int.Parse(Console.ReadLine());
-                            Console.WriteLine("Enter the person name:");
-                            newPerson.Name = Console.ReadLine();
-                            Console.WriteLine("Enter the person Phone:");
-                            newPerson.Phone = Console.ReadLine();
-                            controller.CreatePerson(newPerson);
+                            controller.CreatePerson();
                             break;
                         }
                     case "2":
@@ -39,15 +38,7 @@
                         }
                     case "3":
                         {
-                            Console.Write("Enter ID of the person to update: ");
-                            int updateId = int.Parse(Console.ReadLine());
-                            var updatedPerson = new Person();
-                            updatedPerson.Id = updateId;
-                            Console.Write("Enter New Name: ");
-                            updatedPerson.Name = Console.ReadLine();
-                            Console.Write("Enter New Phone: ");
-                            updatedPerson.Phone = Console.ReadLine();
-                            controller.UpdatePerson(updateId, updatedPerson);
+                            controller.UpdatePerson();
                             break;
                         }
                     case "4":
